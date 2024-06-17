@@ -94,8 +94,8 @@ public class HomeActivity extends AppCompatActivity {
         tt.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ProfileActivity.class)));
 
         // Set Header Data
-        Glide.with(this).load(appSharedPreferences.getImgUrl()).into(profileImg);
-        Glide.with(this).load(appSharedPreferences.getImgUrl()).into(nav_img);
+//        Glide.with(this).load(appSharedPreferences.getImgUrl()).into(profileImg);
+//        Glide.with(this).load(appSharedPreferences.getImgUrl()).into(nav_img);
         nav_name.setText(appSharedPreferences.getUserName());
 
 
@@ -154,4 +154,6 @@ public class HomeActivity extends AppCompatActivity {
             return true;
         }
     };
+
+
 }

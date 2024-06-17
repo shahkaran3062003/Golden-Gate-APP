@@ -22,6 +22,12 @@ public class PostModel {
     public PostModel() {
 
     }
+    public  PostModel(String imgUrl, String description, String username,String user_profile){
+        this.imgUrl = imgUrl;
+        this.description = description;
+        this.username = username;
+        this.user_profile = user_profile;
+    }
 
     public String getImgUrl() {
         return imgUrl;

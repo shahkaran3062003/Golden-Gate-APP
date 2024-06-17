@@ -93,7 +93,7 @@ public class SharePostActivity extends AppCompatActivity {
         Log.d("API", "onCreate: "+token);
 
         userName.setText(appSharedPreferences.getUserName());
-        Glide.with(this).load(appSharedPreferences.getImgUrl()).into(profileImg);
+//        Glide.with(this).load(appSharedPreferences.getImgUrl()).into(profileImg);
 
         // Close Activity
         closeImg.setOnClickListener(v -> finish());
@@ -148,66 +148,110 @@ public class SharePostActivity extends AppCompatActivity {
     void uploadData() {
 
 
-            Bitmap bitmap;
-            bitmap = ((BitmapDrawable) post_img.getDrawable()).getBitmap();
+        Bitmap bitmap;
+        bitmap = ((BitmapDrawable) post_img.getDrawable()).getBitmap();
 
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject();
+            jsonObject.put("content", edit_text.getText().toString());
+            JSONArray imgArray = new JSONArray();
+            imgArray.put(convertImageToBase64(bitmap));
+            jsonObject.put("image", imgArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
 
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Method.POST,
+                requestAPI,
+                jsonObject,
+                new Response.Listener<JSONObject>() {
 
-        StringRequest stringObjectRequest = new StringRequest(Method.POST,
-        requestAPI,
-        new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            Log.d("API", "onResponse: "+response.toString());
+                            Toast.makeText(SharePostActivity.this, ""+response.get("message"), Toast.LENGTH_SHORT).show();
+                            loadingDialog.dismissDialog();
+                            startActivity(new Intent(SharePostActivity.this, HomeActivity.class));
+                            finish();
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
 
-                if(response.equals("Post saved successfully.")){
-                    Toast.makeText(SharePostActivity.this, "Post uploaded successfully", Toast.LENGTH_SHORT).show();
-                    loadingDialog.dismissDialog();
-                    startActivity(new Intent(SharePostActivity.this, HomeActivity.class));
-                    finish();
-                }else{
-                    Toast.makeText(SharePostActivity.this, "Post upload failed: " + response, Toast.LENGTH_SHORT).show();
-                    loadingDialog.dismissDialog();
-                }
-
-            }
-        }, new Response.ErrorListener(){
+                    }
+                },
+                new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("API", "Login Error: " + error);
-                        Toast.makeText(SharePostActivity.this, "Post upload failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SharePostActivity.this, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
                         loadingDialog.dismissDialog();
+                        Log.d("API", "onErrorResponse: "+error.getMessage());
+                        startActivity(new Intent(SharePostActivity.this, HomeActivity.class));
+                        finish();
                     }
-        })
-        {
-          @Override
-          public Map<String,String> getHeaders(){
-              Map<String,String> params = new HashMap<>();
-              params.put("Authorization", "Bearer " + token);
-              params.put("Content-Type", "application/json");
-              return params;
-          }
-
+                }
+        ){
             @Override
-            public Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<>();
-                params.put("content", edit_text.getText().toString());
-                params.put("images", convertImageToBase64(bitmap));
-
-                return  params;
-
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", "Bearer " + token);
+                return params;
             };
+
+
+
+
+//        StringRequest stringObjectRequest = new StringRequest(Method.POST,
+//                requestAPI,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//
+//                        if (response.equals("Post saved successfully.")) {
+//                            Toast.makeText(SharePostActivity.this, "Post uploaded successfully", Toast.LENGTH_SHORT).show();
+//                            loadingDialog.dismissDialog();
+//                            startActivity(new Intent(SharePostActivity.this, HomeActivity.class));
+//                            finish();
+//                        } else {
+//                            Toast.makeText(SharePostActivity.this, "Post upload failed: " + response, Toast.LENGTH_SHORT).show();
+//                            loadingDialog.dismissDialog();
+//                        }
+//
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Log.d("API", "Login Error: " + error);
+//                Toast.makeText(SharePostActivity.this, "Post upload failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+//                loadingDialog.dismissDialog();
+//            }
+//        }) {
+//            @Override
+//            public Map<String, String> getHeaders() {
+//                Map<String, String> params = new HashMap<>();
+//                params.put("Authorization", "Bearer " + token);
+//                return params;
+//            }
+//
+//            @Override
+//            public Map<String, String> getParams() {
+//                Map<String, String> params = new HashMap<>();
+//                params.put("content", edit_text.getText().toString());
+//                params.put("images", convertImageToBase64(bitmap));
+//
+//                return params;
+//
+//            }
+
+            ;
         };
 
-
-
-
-
-
-        requestQueue.add(stringObjectRequest);
+        requestQueue.add(jsonObjectRequest);
 
 
     }

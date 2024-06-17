@@ -4,8 +4,12 @@ import static com.example.goldengate.Constants.ALL_POSTS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.util.Base64;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -145,13 +149,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
         holder.desc.setAutoLinkText(list.get(position).getDescription());
 
 
-        Glide.with(aCtx).load(list.get(position).getUser_profile()).into(holder.userImage);
+
+
+        loadBase64Image(list.get(position).getUser_profile(), holder.userImage);
+//        Glide.with(aCtx).load(list.get(position).getUser_profile()).into(holder.userImage);
         holder.userName.setText(list.get(position).getUsername());
 
         if (list.get(position).getImgUrl().equals("")) {
             holder.ll.setVisibility(View.GONE);
         } else {
-            Glide.with(aCtx).load(list.get(position).getImgUrl()).into(holder.postImage);
+            loadBase64Image(list.get(position).getImgUrl(), holder.postImage);
+//            Glide.with(aCtx).load(list.get(position).getImgUrl()).into(holder.postImage);
             holder.ll.setVisibility(View.VISIBLE);
         }
 
@@ -178,6 +186,39 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
 //
 //        isLikes(holder.likesTxt, holder.commentTxt, postKey);
 
+    }
+
+    private Bitmap decodeBase64Image(String base64Image) {
+        if(base64Image.substring(0, 4).equals("data")) {
+            base64Image = base64Image.substring(base64Image.indexOf(",") + 1);
+        }
+        if (base64Image == null || base64Image.isEmpty()) {
+            return null; // or handle appropriately
+        }
+
+        byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+    }
+
+
+    private void loadBase64Image(String base64Image, ImageView imgView) {
+        Log.d("Base64Content", base64Image); // Log the base64Image content
+
+        try {
+            Bitmap bitmap = decodeBase64Image(base64Image);
+
+            Glide.with(aCtx)
+                    .load(bitmap)
+                    .placeholder(R.drawable.user) // Placeholder image
+                    .error(R.drawable.user) // Error image if loading fails
+                    .into(imgView);
+
+
+            // Use the bitmap as needed
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            // Handle the error appropriately (e.g., show error message)
+        }
     }
 
     private void isLikes(TextView textView, TextView commentcount, String postkey) {
