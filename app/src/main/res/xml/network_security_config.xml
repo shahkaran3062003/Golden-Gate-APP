@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+<!--    <domain-config cleartextTrafficPermitted="true">-->
+<!--        <domain includeSubdomains="true">192.168.1.57</domain>-->
+<!--    </domain-config>-->
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true"> https://705b-2409-40c1-4e-4bd7-b1aa-54f8-6c9c-3a34.ngrok-free.app</domain>
+    </domain-config>
+</network-security-config>
